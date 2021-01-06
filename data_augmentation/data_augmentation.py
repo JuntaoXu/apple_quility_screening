@@ -1,6 +1,6 @@
 import random
+import cv2
 import numpy as np
-import opencv
 from skimage import exposure
 from skimage.util import random_noise
 
@@ -250,6 +250,7 @@ def flip_pic_bboxes(self, img, bboxes):
 
 
 if __name__ == '__main__':
+    dir = ""
     crop_img_bboxes()
     shift_pic_bboxes()
     alterLight()
