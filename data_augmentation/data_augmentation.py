@@ -6,7 +6,7 @@ from skimage.util import random_noise
 
 
 # crop
-def crop_img_bboxes(self, img, bboxes):
+def crop_img_bboxes(img, bboxes):
     '''
     裁剪后图片要包含所有的框
     输入：
@@ -62,7 +62,7 @@ def crop_img_bboxes(self, img, bboxes):
 
 
 # pan
-def shift_pic_bboxes(self, img, bboxes):
+def shift_pic_bboxes(img, bboxes):
     '''
     平移后需要包含所有的框
     参考资料：https://blog.csdn.net/sty945/article/details/79387054
@@ -114,7 +114,7 @@ def shift_pic_bboxes(self, img, bboxes):
 
 
 # alter exposure
-def alterLight(self, img):
+def alterLight(img):
     '''
     adjust_gamma(image, gamma=1, gain=1)函数:
     gamma>1时，输出图像变暗，小于1时，输出图像变亮
@@ -139,7 +139,7 @@ def addNoise(self,img):
 
 
 # rotate
-def rotate_img_bboxes(self, img, bboxes, angle=5, scale=1.):
+def rotate_img_bboxes(img, bboxes, angle=5, scale=1.):
     '''
     参考：https://blog.csdn.net/saltriver/article/details/79680189
           https://www.ctolib.com/topics-44419.html
@@ -210,7 +210,7 @@ def rotate_img_bboxes(self, img, bboxes, angle=5, scale=1.):
 
 
 # flip
-def flip_pic_bboxes(self, img, bboxes):
+def flip_pic_bboxes(img, bboxes):
     '''
     参考：https://blog.csdn.net/jningwei/article/details/78753607
     镜像后的图片要包含所有的框
