@@ -30,7 +30,6 @@ def crop_img_bboxes(img, bboxes):
         y_min = min(y_min, bbox[1])
         x_max = max(x_max, bbox[2])
         y_max = max(y_max, bbox[3])
-        name = bbox[4]
 
     # 包含所有目标框的最小框到各个边的距离
     d_to_left = x_min
@@ -56,7 +55,7 @@ def crop_img_bboxes(img, bboxes):
     crop_bboxes = list()
     for bbox in bboxes:
         crop_bboxes.append([bbox[0] - crop_x_min, bbox[1] - crop_y_min,
-                            bbox[2] - crop_x_min, bbox[3] - crop_y_min, name])
+                            bbox[2] - crop_x_min, bbox[3] - crop_y_min])
 
     return crop_img, crop_bboxes
 
@@ -87,7 +86,6 @@ def shift_pic_bboxes(img, bboxes):
         y_min = min(y_min, bbox[1])
         x_max = max(x_max, bbox[2])
         y_max = max(x_max, bbox[3])
-        name = bbox[4]
 
     # 包含所有目标框的最小框到各个边的距离，即每个方向的最大移动距离
     d_to_left = x_min
@@ -108,7 +106,7 @@ def shift_pic_bboxes(img, bboxes):
     # ------------------ 平移boundingbox ------------------
     shift_bboxes = list()
     for bbox in bboxes:
-        shift_bboxes.append([bbox[0] + x, bbox[1] + y, bbox[2] + x, bbox[3] + y, name])
+        shift_bboxes.append([bbox[0] + x, bbox[1] + y, bbox[2] + x, bbox[3] + y])
 
     return shift_img, shift_bboxes
 
@@ -128,7 +126,7 @@ def alterLight(img):
 
 
 # add_noise
-def addNoise(self,img):
+def addNoise(img):
     '''
     输入：
         img：图像array
@@ -187,7 +185,6 @@ def rotate_img_bboxes(img, bboxes, angle=5, scale=1.):
         y_min = bbox[1]
         x_max = bbox[2]
         y_max = bbox[3]
-        name = bbox[4]
         point1 = np.dot(rot_mat, np.array([(x_min + x_max) / 2, y_min, 1]))
         point2 = np.dot(rot_mat, np.array([x_max, (y_min + y_max) / 2, 1]))
         point3 = np.dot(rot_mat, np.array([(x_min + x_max) / 2, y_max, 1]))
@@ -204,7 +201,7 @@ def rotate_img_bboxes(img, bboxes, angle=5, scale=1.):
         rx_max = rx + rw
         ry_max = ry + rh
         # 加入list中
-        rot_bboxes.append([rx_min, ry_min, rx_max, ry_max, name])
+        rot_bboxes.append([rx_min, ry_min, rx_max, ry_max])
 
     return rot_img, rot_bboxes
 
@@ -240,20 +237,9 @@ def flip_pic_bboxes(img, bboxes):
         y_min = bbox[1]
         x_max = bbox[2]
         y_max = bbox[3]
-        name = bbox[4]
         if horizon:
-            flip_bboxes.append([w - x_max, y_min, w - x_min, y_max, name])
+            flip_bboxes.append([w - x_max, y_min, w - x_min, y_max])
         else:
-            flip_bboxes.append([x_min, h - y_max, x_max, h - y_min, name])
+            flip_bboxes.append([x_min, h - y_max, x_max, h - y_min])
 
     return flip_img, flip_bboxes
-
-
-if __name__ == '__main__':
-    dir = ""
-    crop_img_bboxes()
-    shift_pic_bboxes()
-    alterLight()
-    addNoise()
-    rotate_img_bboxes()
-    flip_pic_bboxes()
