@@ -1,4 +1,5 @@
 import random
+import math
 import cv2
 import numpy as np
 from skimage import exposure
@@ -137,7 +138,7 @@ def addNoise(img):
 
 
 # rotate
-def rotate_img_bboxes(img, bboxes, angle=5, scale=1.):
+def rotate_img_bboxes(img, bboxes, angle=90, scale=1.):
     '''
     参考：https://blog.csdn.net/saltriver/article/details/79680189
           https://www.ctolib.com/topics-44419.html

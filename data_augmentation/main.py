@@ -67,7 +67,7 @@ def main():
         exit()
 
     choices = ["crop_img_bboxes", "shift_pic_bboxes", "alterLight", "addNoise", "rotate_img_bboxes", "flip_pic_bboxes"]
-    user_choice = 0
+    user_choice = 3
 
     if user_choice in [0, 1, 2, 3, 4, 5]:
         print("Both input valid")
@@ -85,11 +85,11 @@ def main():
             # print(bbox_type)
             # print(bboxes)
             img, bboxes = process_with_choice(user_choice, img, bboxes)
-            cv2.imshow("jpg", img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-            print(bbox_type)
-            print(bboxes)
+            # cv2.imshow("jpg", img)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            # print(bbox_type)
+            # print(bboxes)
             write(saving_dir, img_name, txt_name, img, bbox_type, bboxes)
 
 

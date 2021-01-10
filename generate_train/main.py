@@ -8,8 +8,6 @@ def generate_txt(p_dir, train_dir):
             f.write(p_dir + file + "\n")
     f.close()
 
-
-if __name__ == '__main__':
-    picture_dir = 'F:/apple_quiality_filter/data/12-12/data/'
-    train_file_location = "F:/apple_quiality_filter/data/12-12/"
-    generate_txt(picture_dir, train_file_location)
+picture_dir = "E:/apple_quality_screening_release/v2.2/data/"
+train_file_location = "E:/apple_quality_screening_release/v2.2/"
+generate_txt(picture_dir, train_file_location)
