@@ -17,11 +17,14 @@ def process_with_choice(user_choice, img, bboxes):
     # addNoise
     elif user_choice == 3:
         img = data_augmentation.addNoise(img)
-    # rotate_img_boxes
+    # rotate_clockwise_90
     elif user_choice == 4:
-        img, bboxes = data_augmentation.rotate_img_bboxes(img, bboxes)
-    # flip_pic_bboxes
+        img, bboxes = data_augmentation.rotate_clockwise_90(img, bboxes)
+    # rotate_anticlockwise_90
     elif user_choice == 5:
+        img, bboxes = data_augmentation.rot_anticlockwise_90(img, bboxes)
+    # flip_pic_bboxes
+    elif user_choice == 6:
         img, bboxes = data_augmentation.flip_pic_bboxes(img, bboxes)
 
     return img, bboxes
@@ -69,7 +72,7 @@ def main():
     choices = ["crop_img_bboxes", "shift_pic_bboxes", "alterLight", "addNoise", "rotate_img_bboxes", "flip_pic_bboxes"]
     user_choice = 4
 
-    if user_choice in [0, 1, 2, 3, 4, 5]:
+    if user_choice in [0, 1, 2, 3, 4, 5, 6]:
         print("Both input valid")
     else:
         print("invalid input")

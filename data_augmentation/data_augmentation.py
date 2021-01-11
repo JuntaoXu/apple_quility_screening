@@ -1,5 +1,4 @@
 import random
-import math
 import cv2
 import numpy as np
 from skimage import exposure
@@ -137,75 +136,50 @@ def addNoise(img):
     return random_noise(img, mode='gaussian', clip=True) * 255
 
 
-# rotate
-def rotate_img_bboxes(img, bboxes, angle=90, scale=1.):
+# rotate clockwise by 90 degrees
+def rotate_clockwise_90(img, bboxes):
     '''
-    参考：https://blog.csdn.net/saltriver/article/details/79680189
-          https://www.ctolib.com/topics-44419.html
-    关于仿射变换：https://www.zhihu.com/question/20666664
-    输入:
-        img:图像array,(h,w,c)
-        bboxes:该图像包含的所有boundingboxs,一个list,每个元素为[x_min, y_min, x_max, y_max],要确保是数值
-        angle:旋转角度
-        scale:默认1
-    输出:
-        rot_img:旋转后的图像array
-        rot_bboxes:旋转后的boundingbox坐标list
+    :param img: nparray img
+    :param bboxes: np.array([[88, 176, 250, 312, 1222], [454, 115, 500, 291, 1222]]), 里面为x1, y1, x2, y2, 标签
+    :param p: 随机比例
+    :return:
     '''
-    # ---------------------- 旋转图像 ----------------------
-    w = img.shape[1]
-    h = img.shape[0]
-    # 角度变弧度
-    rangle = np.deg2rad(angle)
-    # 计算新图像的宽度和高度，分别为最高点和最低点的垂直距离
-    nw = (abs(np.sin(rangle) * h) + abs(np.cos(rangle) * w)) * scale
-    nh = (abs(np.cos(rangle) * h) + abs(np.sin(rangle) * w)) * scale
-    # 获取图像绕着某一点的旋转矩阵
-    # getRotationMatrix2D(Point2f center, double angle, double scale)
-    # Point2f center：表示旋转的中心点
-    # double angle：表示旋转的角度
-    # double scale：图像缩放因子
-    # 参考：https://cloud.tencent.com/developer/article/1425373
-    rot_mat = cv2.getRotationMatrix2D((nw * 0.5, nh * 0.5), angle, scale)  # 返回 2x3 矩阵
-    # 新中心点与旧中心点之间的位置
-    rot_move = np.dot(rot_mat, np.array([(nw - w) * 0.5, (nh - h) * 0.5, 0]))
-    # the move only affects the translation, so update the translation
-    # part of the transform
-    rot_mat[0, 2] += rot_move[0]
-    rot_mat[1, 2] += rot_move[1]
-    # 仿射变换
-    rot_img = cv2.warpAffine(img, rot_mat, (int(math.ceil(nw)), int(math.ceil(nh))),
-                             flags=cv2.INTER_LANCZOS4)  # ceil向上取整
+    # 顺时针旋转90度
+    h, w, _ = img.shape
+    trans_img = cv2.transpose(img)
+    new_img = cv2.flip(trans_img, 1)
+    if bboxes is None:
+        return new_img
+    else:
+        # bounding box 的变换: 一个图像的宽高是W,H, 如果顺时90度转换，那么原来的原点(0, 0)到了 (H, 0) 这个最右边的顶点了，
+        # 设图像中任何一个转换前的点(x1, y1), 转换后，x1, y1是表示到 (H, 0)这个点的距离，所以我们只要转换回到(0, 0) 这个点的距离即可！
+        # 所以+90度转换后的点为 (H-y1, x1), -90度转换后的点为(y1, W-x1)
+        bboxes[:, [0, 1, 2, 3]] = bboxes[:, [1, 0, 3, 2]]
+        bboxes[:, [0, 2]] = h - bboxes[:, [0, 2]]
+        return new_img, bboxes
 
-    # ---------------------- 矫正boundingbox ----------------------
-    # rot_mat是最终的旋转矩阵
-    # 获取原始bbox的四个中点，然后将这四个点转换到旋转后的坐标系下
-    rot_bboxes = list()
-    for bbox in bboxes:
-        x_min = bbox[0]
-        y_min = bbox[1]
-        x_max = bbox[2]
-        y_max = bbox[3]
-        point1 = np.dot(rot_mat, np.array([(x_min + x_max) / 2, y_min, 1]))
-        point2 = np.dot(rot_mat, np.array([x_max, (y_min + y_max) / 2, 1]))
-        point3 = np.dot(rot_mat, np.array([(x_min + x_max) / 2, y_max, 1]))
-        point4 = np.dot(rot_mat, np.array([x_min, (y_min + y_max) / 2, 1]))
 
-        # 合并np.array
-        concat = np.vstack((point1, point2, point3, point4))  # 在竖直方向上堆叠
-        print(point1, point2, point3, point4)
-        # 改变array类型
-        concat = concat.astype(np.int32)
-        # 得到旋转后的坐标
-        rx, ry, rw, rh = cv2.boundingRect(concat)
-        rx_min = rx
-        ry_min = ry
-        rx_max = rx + rw
-        ry_max = ry + rh
-        # 加入list中
-        rot_bboxes.append([rx_min, ry_min, rx_max, ry_max])
-
-    return rot_img, rot_bboxes
+# rotate anticlockwise by 90 degrees
+def rot_anticlockwise_90(img, bboxes):
+    '''
+    :param img: nparray img
+    :param bboxes: np.array([[88, 176, 250, 312, 1222], [454, 115, 500, 291, 1222]]), 里面为x1, y1, x2, y2, 标签
+    :param p: 随机比例
+    :return:
+    '''
+    # 逆时针旋转90度
+    h, w, _ = img.shape
+    trans_img = cv2.transpose(img)
+    new_img = cv2.flip(trans_img, 0)
+    if bboxes is None:
+        return new_img
+    else:
+        # bounding box 的变换: 一个图像的宽高是W,H, 如果顺时90度转换，那么原来的原点(0, 0)到了 (H, 0) 这个最右边的顶点了，
+        # 设图像中任何一个转换前的点(x1, y1), 转换后，x1, y1是表示到 (H, 0)这个点的距离，所以我们只要转换回到(0, 0) 这个点的距离即可！
+        # 所以+90度转换后的点为 (H-y1, x1), -90度转换后的点为(y1, W-x1)
+        bboxes[:, [0, 1, 2, 3]] = bboxes[:, [1, 0, 3, 2]]
+        bboxes[:, [1, 3]] = w - bboxes[:, [1, 3]]
+        return new_img, bboxes
 
 
 # flip
