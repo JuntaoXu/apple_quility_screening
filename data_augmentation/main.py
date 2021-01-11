@@ -36,7 +36,7 @@ def read(dir, pic_name, txt_name):
         bbox = []
         for coordinate in line.split(" "):
             bbox.append(float(coordinate.strip("\n")))
-        bbox_type.append(bbox[0])
+        bbox_type.append(int(bbox[0]))
         bboxes.append(bbox[1:])
     f.close()
 
@@ -48,7 +48,7 @@ def write(dir, img_name, txt_name, img, bbox_type, bboxes):
     i = 0
     f = open(dir + "/" + txt_name, "w+")
     while i < len(bbox_type):
-        f.write(str(int(bbox_type[i])) + " ")
+        f.write(str(bbox_type[i]) + " ")
         for coordinate in bboxes[i]:
             f.write(str(coordinate) + " ")
         f.write("\n")
@@ -57,8 +57,8 @@ def write(dir, img_name, txt_name, img, bbox_type, bboxes):
 
 
 def main():
-    origin_dir = "E:/apple_quality_screening_release/v2.2/test_origin"
-    saving_dir = "E:/apple_quality_screening_release/v2.2/test_destination"
+    origin_dir = "E:/apple_quality_screening_release/data_augmentation_origin"
+    saving_dir = "E:/apple_quality_screening_release/data_augmentation_destination"
     try:
         os.chdir(origin_dir)
         os.chdir(saving_dir)
@@ -67,7 +67,7 @@ def main():
         exit()
 
     choices = ["crop_img_bboxes", "shift_pic_bboxes", "alterLight", "addNoise", "rotate_img_bboxes", "flip_pic_bboxes"]
-    user_choice = 3
+    user_choice = 4
 
     if user_choice in [0, 1, 2, 3, 4, 5]:
         print("Both input valid")
@@ -85,11 +85,11 @@ def main():
             # print(bbox_type)
             # print(bboxes)
             img, bboxes = process_with_choice(user_choice, img, bboxes)
-            # cv2.imshow("jpg", img)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
-            # print(bbox_type)
-            # print(bboxes)
+            cv2.imshow("jpg", img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+            print(bbox_type)
+            print(bboxes)
             write(saving_dir, img_name, txt_name, img, bbox_type, bboxes)
 
 

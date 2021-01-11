@@ -193,6 +193,7 @@ def rotate_img_bboxes(img, bboxes, angle=90, scale=1.):
 
         # 合并np.array
         concat = np.vstack((point1, point2, point3, point4))  # 在竖直方向上堆叠
+        print(point1, point2, point3, point4)
         # 改变array类型
         concat = concat.astype(np.int32)
         # 得到旋转后的坐标
