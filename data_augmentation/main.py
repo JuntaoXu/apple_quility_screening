@@ -35,18 +35,18 @@ def read(dir, pic_name, txt_name):
     for line in f:
         bbox = []
         for coordinate in line.split(" "):
-            bbox.append(float(coordinate.strip("\n")))
-        bbox_type.append(int(bbox[0]))
-        bboxes.append(bbox[1:])
+            bbox.append(float(coordinate.strip("\n")))     # remove \n
+        bbox_type.append(int(bbox[0]))     # int to avoid 1.0 situations
+        bboxes.append(bbox[1:])     # seperate bbox_type and bboxes
     f.close()
 
     return img, bbox_type, bboxes
 
 
 def write(dir, img_name, txt_name, img, bbox_type, bboxes):
-    cv2.imwrite(dir + "/" + img_name, img)
+    cv2.imwrite(dir + "/" + img_name, img)     # write img
     i = 0
-    f = open(dir + "/" + txt_name, "w+")
+    f = open(dir + "/" + txt_name, "w+")     # write txt
     while i < len(bbox_type):
         f.write(str(bbox_type[i]) + " ")
         for coordinate in bboxes[i]:
@@ -57,49 +57,54 @@ def write(dir, img_name, txt_name, img, bbox_type, bboxes):
 
 
 def show_img_with_bbox(img, bboxes):
-    h, w = img.shape[:2]
+    h, w = img.shape[:2]     # get height and width
     for bbox in bboxes:
-        flag = True
+        flag = True     # differentiate beetween x and y
         for coordinate in bbox:
             if flag:
-                bbox[bbox.index(coordinate)] = coordinate * w
+                bbox[bbox.index(coordinate)] = coordinate * w     # turn unit to pixels
                 flag = False
             else:
                 bbox[bbox.index(coordinate)] = coordinate * h
                 flag = True
-        xmin, ymin = int(bbox[0] - bbox[2] / 2), int(bbox[1] - bbox[3] / 2)
+        xmin, ymin = int(bbox[0] - bbox[2] / 2), int(bbox[1] - bbox[3] / 2)     # get two diagonal points
         xmax, ymax = int(bbox[0] + bbox[2] / 2), int(bbox[1] + bbox[3] / 2)
-        cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+        cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)     # draw rectangle
     cv2.imshow("jpg", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
 def main():
+    # user inputs
     origin_dir = "E:/apple_quality_screening_release/data_augmentation_origin"
     saving_dir = "E:/apple_quality_screening_release/data_augmentation_destination"
     choices = ["crop_img_bboxes", "shift_pic_bboxes", "alterLight", "addNoise", "rotate_img_bboxes", "flip_pic_bboxes"]
     user_choice = 4
-    rotate_degrees = 90
+    rotate_degrees = 30
 
     print("reading from " + origin_dir)
     print("saving to " + saving_dir)
     print("performing " + choices[user_choice])
 
+    # read all jpg under origin directory
     for img_name in tqdm(os.listdir(origin_dir)):
         if img_name.endswith(".jpg"):
             txt_name = img_name.split(".", -1)[0] + ".txt"
 
+            # read img and txt
             img, bbox_type, bboxes = read(origin_dir, img_name, txt_name)
             print("data read from ", img_name, "&", txt_name)
 
             # show_img_with_bbox(img, bboxes)
 
+            # alter img, and bboxes
             img, bboxes = process_with_choice(user_choice, img, bboxes, rotate_degrees)
             print("image processed")
 
             show_img_with_bbox(img, bboxes)
 
+            # write img and txt into saving directory
             write(saving_dir, img_name, txt_name, img, bbox_type, bboxes)
             print("image saved to saving directory")
 
