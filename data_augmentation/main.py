@@ -17,14 +17,11 @@ def process_with_choice(user_choice, img, bboxes):
     # addNoise
     elif user_choice == 3:
         img = data_augmentation.addNoise(img)
-    # rotate_clockwise_90
+    # rotate_img_bboxes
     elif user_choice == 4:
-        img, bboxes = data_augmentation.rotate_clockwise_90(img, bboxes)
-    # rotate_anticlockwise_90
+        img, bboxes = data_augmentation.rotate_img_bboxes(img, bboxes)
+    # flip_pic_boxes
     elif user_choice == 5:
-        img, bboxes = data_augmentation.rot_anticlockwise_90(img, bboxes)
-    # flip_pic_bboxes
-    elif user_choice == 6:
         img, bboxes = data_augmentation.flip_pic_bboxes(img, bboxes)
 
     return img, bboxes
@@ -59,40 +56,48 @@ def write(dir, img_name, txt_name, img, bbox_type, bboxes):
     f.close()
 
 
+def show_img_with_bbox(img, bboxes):
+    h, w, _ = img.shape
+    for bbox in bboxes:
+        flag = True
+        for coordinate in bbox:
+            if flag:
+                bbox[bbox.index(coordinate)] = coordinate * w
+                flag = False
+            else:
+                bbox[bbox.index(coordinate)] = coordinate * h
+                flag = True
+        xmin, ymin = int(bbox[0] - bbox[2] / 2), int(bbox[1] - bbox[3] / 2)
+        xmax, ymax = int(bbox[0] + bbox[2] / 2), int(bbox[1] + bbox[3] / 2)
+        cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
+    cv2.imshow("jpg", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
 def main():
     origin_dir = "E:/apple_quality_screening_release/data_augmentation_origin"
     saving_dir = "E:/apple_quality_screening_release/data_augmentation_destination"
-    try:
-        os.chdir(origin_dir)
-        os.chdir(saving_dir)
-    except:
-        print("input directory not found")
-        exit()
-
     choices = ["crop_img_bboxes", "shift_pic_bboxes", "alterLight", "addNoise", "rotate_img_bboxes", "flip_pic_bboxes"]
     user_choice = 4
 
-    if user_choice in [0, 1, 2, 3, 4, 5, 6]:
-        print("Both input valid")
-    else:
-        print("invalid input")
-        exit()
+    print("reading from " + origin_dir)
+    print("saving to " + saving_dir)
+    print("performing " + choices[user_choice])
 
     for img_name in tqdm(os.listdir(origin_dir)):
         if img_name.endswith(".jpg"):
             txt_name = img_name.split(".", -1)[0] + ".txt"
+
             img, bbox_type, bboxes = read(origin_dir, img_name, txt_name)
-            # cv2.imshow("jpg", img)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
-            # print(bbox_type)
-            # print(bboxes)
+            print("data read from ", img_name, "&", txt_name)
+
+            # show_img_with_bbox(img, bboxes)
+
             img, bboxes = process_with_choice(user_choice, img, bboxes)
-            cv2.imshow("jpg", img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-            print(bbox_type)
-            print(bboxes)
+
+            show_img_with_bbox(img, bboxes)
+
             write(saving_dir, img_name, txt_name, img, bbox_type, bboxes)
 
 

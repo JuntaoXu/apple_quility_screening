@@ -1,4 +1,5 @@
 import random
+import math
 import cv2
 import numpy as np
 from skimage import exposure
@@ -136,50 +137,12 @@ def addNoise(img):
     return random_noise(img, mode='gaussian', clip=True) * 255
 
 
-# rotate clockwise by 90 degrees
-def rotate_clockwise_90(img, bboxes):
-    '''
-    :param img: nparray img
-    :param bboxes: np.array([[88, 176, 250, 312, 1222], [454, 115, 500, 291, 1222]]), 里面为x1, y1, x2, y2, 标签
-    :param p: 随机比例
-    :return:
-    '''
-    # 顺时针旋转90度
-    h, w, _ = img.shape
-    trans_img = cv2.transpose(img)
-    new_img = cv2.flip(trans_img, 1)
-    if bboxes is None:
-        return new_img
-    else:
-        # bounding box 的变换: 一个图像的宽高是W,H, 如果顺时90度转换，那么原来的原点(0, 0)到了 (H, 0) 这个最右边的顶点了，
-        # 设图像中任何一个转换前的点(x1, y1), 转换后，x1, y1是表示到 (H, 0)这个点的距离，所以我们只要转换回到(0, 0) 这个点的距离即可！
-        # 所以+90度转换后的点为 (H-y1, x1), -90度转换后的点为(y1, W-x1)
-        bboxes[:, [0, 1, 2, 3]] = bboxes[:, [1, 0, 3, 2]]
-        bboxes[:, [0, 2]] = h - bboxes[:, [0, 2]]
-        return new_img, bboxes
+# 随机顺时针旋转90
+def rotate_img_bboxes(img, bboxes, rotate_degrees):
+    w, h, _ = img.shape
+    cv2.getRotationMatrix2D((w/2, h/2), 90, 1)
 
-
-# rotate anticlockwise by 90 degrees
-def rot_anticlockwise_90(img, bboxes):
-    '''
-    :param img: nparray img
-    :param bboxes: np.array([[88, 176, 250, 312, 1222], [454, 115, 500, 291, 1222]]), 里面为x1, y1, x2, y2, 标签
-    :param p: 随机比例
-    :return:
-    '''
-    # 逆时针旋转90度
-    h, w, _ = img.shape
-    trans_img = cv2.transpose(img)
-    new_img = cv2.flip(trans_img, 0)
-    if bboxes is None:
-        return new_img
-    else:
-        # bounding box 的变换: 一个图像的宽高是W,H, 如果顺时90度转换，那么原来的原点(0, 0)到了 (H, 0) 这个最右边的顶点了，
-        # 设图像中任何一个转换前的点(x1, y1), 转换后，x1, y1是表示到 (H, 0)这个点的距离，所以我们只要转换回到(0, 0) 这个点的距离即可！
-        # 所以+90度转换后的点为 (H-y1, x1), -90度转换后的点为(y1, W-x1)
-        bboxes[:, [0, 1, 2, 3]] = bboxes[:, [1, 0, 3, 2]]
-        bboxes[:, [1, 3]] = w - bboxes[:, [1, 3]]
-        return new_img, bboxes
+    return img, bboxes
 
 
 # flip
