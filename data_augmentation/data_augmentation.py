@@ -138,7 +138,7 @@ def addNoise(img):
 
 
 # 随机顺时针旋转90
-def rotate_img_bboxes(img, bboxes, rotate_degrees):
+def rotate_img_bboxes(img, bboxes, rotate_degrees=0.5 * math.pi/2):
     w, h = img.shape[:2]
     rotated = cv2.getRotationMatrix2D((w / 2, h / 2), rotate_degrees, 1)
     img = cv2.warpAffine(img, rotated, (w, h))
@@ -146,14 +146,20 @@ def rotate_img_bboxes(img, bboxes, rotate_degrees):
 
     rotated_bboxes= []
     for bbox in bboxes:
-        xmin, ymin = (bbox[0] - bbox[2] / 2) * w, (bbox[1] - bbox[3] / 2) * h
-        xmax, ymax = (bbox[0] + bbox[2] / 2) * w, (bbox[1] + bbox[3] / 2) * h
+        # change the origin to center of the image
+        bbox[0] = bbox[0] * w - w / 2
+        bbox[1] = bbox[1] * h - h / 2
+        bbox[2] = bbox[2] * w
+        bbox[3] = bbox[3] * h
+        # get xmin, xmax, ymin, ymax to composite four A, B, C, D point of the bbox
+        xmin, ymin = bbox[0] - bbox[2] / 2, bbox[1] - bbox[3] / 2
+        xmax, ymax = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2
         '''
-        A: xmin, ymin
-        B: xmin, ymax
-        C: xmax, ymin
-        D: xmax, ymax
+        A: xmin, ymin, B: xmin, ymax, C: xmax, ymin, D: xmax, ymax
+        x' = cos(degree) * x - sin(degree) * y
+        y' = sin(degree) * x + cos(degree) * y
         '''
+        # find x', y' for A', B', C', D'
         Ax = math.cos(rotate_degrees) * xmin - math.sin(rotate_degrees) * ymin
         Ay = math.sin(rotate_degrees) * xmin + math.cos(rotate_degrees) * ymin
         Bx = math.cos(rotate_degrees) * xmin - math.sin(rotate_degrees) * ymax
@@ -162,18 +168,16 @@ def rotate_img_bboxes(img, bboxes, rotate_degrees):
         Cy = math.sin(rotate_degrees) * xmax + math.cos(rotate_degrees) * ymin
         Dx = math.cos(rotate_degrees) * xmax - math.sin(rotate_degrees) * ymax
         Dy = math.sin(rotate_degrees) * xmax + math.cos(rotate_degrees) * ymax
-
+        # seperate x' and y', sort from min to max
         rotated_bbox_x = [Ax, Bx, Cx, Dx]
         rotated_bbox_y = [Ay, By, Cy, Dy]
         rotated_bbox_x.sort()
         rotated_bbox_y.sort()
-        print(rotated_bbox_x)
-        print(rotated_bbox_y)
 
-        xmid = rotated_bbox_x[0] + rotated_bbox_x[3] + w_rotated/2
-        ymid = rotated_bbox_y[0] + rotated_bbox_y[3] + h_rotated/2
-        box_w = abs(rotated_bbox_x[3] - rotated_bbox_x[0])
-        box_y = abs(rotated_bbox_y[3] - rotated_bbox_y[0])
+        xmid = ((rotated_bbox_x[0] + rotated_bbox_x[3]) / 2 + w_rotated/2) / w
+        ymid = ((rotated_bbox_y[0] + rotated_bbox_y[3]) / 2 + h_rotated/2) / w
+        box_w = abs(rotated_bbox_x[3] - rotated_bbox_x[0]) / w
+        box_y = abs(rotated_bbox_y[3] - rotated_bbox_y[0]) / w
         rotated_bboxes.append([xmid, ymid, box_w, box_y])
 
 
