@@ -4,7 +4,7 @@ import os
 from tqdm import tqdm
 
 
-def process_with_choice(user_choice, img, bboxes):
+def process_with_choice(user_choice, img, bboxes, rotate_degrees):
     # crop_img_bboxes
     if user_choice == 0:
         img, bboxes = data_augmentation.crop_img_bboxes(img, bboxes)
@@ -19,7 +19,7 @@ def process_with_choice(user_choice, img, bboxes):
         img = data_augmentation.addNoise(img)
     # rotate_img_bboxes
     elif user_choice == 4:
-        img, bboxes = data_augmentation.rotate_img_bboxes(img, bboxes)
+        img, bboxes = data_augmentation.rotate_img_bboxes(img, bboxes, rotate_degrees)
     # flip_pic_boxes
     elif user_choice == 5:
         img, bboxes = data_augmentation.flip_pic_bboxes(img, bboxes)
@@ -57,7 +57,7 @@ def write(dir, img_name, txt_name, img, bbox_type, bboxes):
 
 
 def show_img_with_bbox(img, bboxes):
-    h, w, _ = img.shape
+    h, w = img.shape[:2]
     for bbox in bboxes:
         flag = True
         for coordinate in bbox:
@@ -80,6 +80,7 @@ def main():
     saving_dir = "E:/apple_quality_screening_release/data_augmentation_destination"
     choices = ["crop_img_bboxes", "shift_pic_bboxes", "alterLight", "addNoise", "rotate_img_bboxes", "flip_pic_bboxes"]
     user_choice = 4
+    rotate_degrees = 90
 
     print("reading from " + origin_dir)
     print("saving to " + saving_dir)
@@ -94,11 +95,13 @@ def main():
 
             # show_img_with_bbox(img, bboxes)
 
-            img, bboxes = process_with_choice(user_choice, img, bboxes)
+            img, bboxes = process_with_choice(user_choice, img, bboxes, rotate_degrees)
+            print("image processed")
 
             show_img_with_bbox(img, bboxes)
 
             write(saving_dir, img_name, txt_name, img, bbox_type, bboxes)
+            print("image saved to saving directory")
 
 
 main()

@@ -139,10 +139,47 @@ def addNoise(img):
 
 # 随机顺时针旋转90
 def rotate_img_bboxes(img, bboxes, rotate_degrees):
-    w, h, _ = img.shape
-    cv2.getRotationMatrix2D((w/2, h/2), 90, 1)
+    w, h = img.shape[:2]
+    rotated = cv2.getRotationMatrix2D((w / 2, h / 2), rotate_degrees, 1)
+    img = cv2.warpAffine(img, rotated, (w, h))
+    w_rotated, h_rotated = img.shape[:2]
 
-    return img, bboxes
+    rotated_bboxes= []
+    for bbox in bboxes:
+        xmin, ymin = (bbox[0] - bbox[2] / 2) * w, (bbox[1] - bbox[3] / 2) * h
+        xmax, ymax = (bbox[0] + bbox[2] / 2) * w, (bbox[1] + bbox[3] / 2) * h
+        '''
+        A: xmin, ymin
+        B: xmin, ymax
+        C: xmax, ymin
+        D: xmax, ymax
+        '''
+        Ax = math.cos(rotate_degrees) * xmin - math.sin(rotate_degrees) * ymin
+        Ay = math.sin(rotate_degrees) * xmin + math.cos(rotate_degrees) * ymin
+        Bx = math.cos(rotate_degrees) * xmin - math.sin(rotate_degrees) * ymax
+        By = math.sin(rotate_degrees) * xmin + math.cos(rotate_degrees) * ymax
+        Cx = math.cos(rotate_degrees) * xmax - math.sin(rotate_degrees) * ymin
+        Cy = math.sin(rotate_degrees) * xmax + math.cos(rotate_degrees) * ymin
+        Dx = math.cos(rotate_degrees) * xmax - math.sin(rotate_degrees) * ymax
+        Dy = math.sin(rotate_degrees) * xmax + math.cos(rotate_degrees) * ymax
+
+        rotated_bbox_x = [Ax, Bx, Cx, Dx]
+        rotated_bbox_y = [Ay, By, Cy, Dy]
+        rotated_bbox_x.sort()
+        rotated_bbox_y.sort()
+        print(rotated_bbox_x)
+        print(rotated_bbox_y)
+
+        xmid = rotated_bbox_x[0] + rotated_bbox_x[3] + w_rotated/2
+        ymid = rotated_bbox_y[0] + rotated_bbox_y[3] + h_rotated/2
+        box_w = abs(rotated_bbox_x[3] - rotated_bbox_x[0])
+        box_y = abs(rotated_bbox_y[3] - rotated_bbox_y[0])
+        rotated_bboxes.append([xmid, ymid, box_w, box_y])
+
+
+    print(rotated_bboxes)
+
+    return img, rotated_bboxes
 
 
 # flip
