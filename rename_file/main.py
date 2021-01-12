@@ -14,7 +14,7 @@ def rename_file(dir, dstdir, i):
 
 if __name__ == '__main__':
     i = 3709   # new file will be named as number.jpg starting from 0
-    dir = "E:/apple_quality_screening_release/v2.2/test_destination"     # from
+    dir = "E:/apple_quality_screening_release/data_augmentation_destination"     # from
     dstdir = "E:/apple_quality_screening_release/v2.2/data"     # to
     rename_file(dir, dstdir, i)
 

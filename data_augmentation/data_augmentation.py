@@ -145,19 +145,19 @@ def flip_pic_bboxes(img, bboxes):
         horizon = False
     h, w = img.shape[:2]
     if horizon:  # horizontal flip
-        flip_img = cv2.flip(flip_img, -1)
+        flip_img = cv2.flip(flip_img, 1)
     else:   # vertical flip
         flip_img = cv2.flip(flip_img, 0)
     # modify bboxes
     flip_bboxes = list()
     for bbox in bboxes:
-        x_min = bbox[0]
-        y_min = bbox[1]
-        x_max = bbox[2]
-        y_max = bbox[3]
+        x_min = bbox[0] - bbox[2]/2
+        y_min = bbox[1] - bbox[3]/2
+        x_max = bbox[2] + bbox[2]/2
+        y_max = bbox[3] = bbox[2]/2
         if horizon:
-            flip_bboxes.append([w - x_max, y_min, w - x_min, y_max])
+            flip_bboxes.append([1 - bbox[0], bbox[1], bbox[2], bbox[3]])
         else:
-            flip_bboxes.append([x_min, h - y_max, x_max, h - y_min])
-
+            flip_bboxes.append([bbox[0], 1 - bbox[1], bbox[2], bbox[3]])
+    print(flip_bboxes)
     return flip_img, flip_bboxes

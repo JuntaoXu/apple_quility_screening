@@ -80,8 +80,8 @@ def main():
     origin_dir = "E:/apple_quality_screening_release/data_augmentation_origin"
     saving_dir = "E:/apple_quality_screening_release/data_augmentation_destination"
     choices = ["crop_img_bboxes", "shift_pic_bboxes", "alterLight", "addNoise", "rotate_img_bboxes", "flip_pic_bboxes"]
-    user_choice = 4
-    rotate_degrees = 30
+    user_choice = 5
+    rotate_degrees = 90
 
     print("reading from " + origin_dir)
     print("saving to " + saving_dir)
@@ -102,7 +102,7 @@ def main():
             img, bboxes = process_with_choice(user_choice, img, bboxes, rotate_degrees)
             print("image processed")
 
-            show_img_with_bbox(img, bboxes)
+            # show_img_with_bbox(img, bboxes)
 
             # write img and txt into saving directory
             write(saving_dir, img_name, txt_name, img, bbox_type, bboxes)
