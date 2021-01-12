@@ -1,5 +1,5 @@
 # apple_quility_screening_scripts
-# most parts of the project cannot be uploaded to github due to the maximum file size limit of 100M
+# most part project cannot be added to this repository due to the maximum file size limit of 100M
 
 Introduction:
 The apple_quility_screening project utilizes darknet, yolov3, and yolov3-tiny to perform machine learning
