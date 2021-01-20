@@ -1,17 +1,19 @@
 import os
-import sys
+from tqdm import tqdm
 
 
-def main(file_dir, cmd):
-    for filename in os.listdir(file_dir):
-        print(filename)
+def main(file_origin, file_destination):
+    for filename in tqdm(os.listdir(file_origin)):
+        print("file " + filename + "altered to unix format")
         if filename.endswith(".txt"):
-            f = open(file_dir + filename, "w")
+            f = open(file_origin + filename, "rb")
+            g = open(file_destination + filename, "wb")
             for line in f:
-                sys.stdout.write, (line[:-2] + '/n')
+                g.write(line[:-3] + line[-1:])
+            f.close()
+            g.close()
 
-file_path = "D:/darknet-master/apple_quality_screening_release/data_augmentation_origin/"
-cmd = "python -c " + "import sys; map(sys.stdout.write, (l[:-2] + '/n' for l in sys.stdin.readlines())) "
-print(cmd)
+file_origin = "D:/darknet-master/apple_quality_screening_release/data_augmentation_origin/"
+file_destination = "D:/darknet-master/apple_quality_screening_release/data_augmentation_destination/"
 
-main(file_path, cmd)
+main(file_origin, file_destination)
